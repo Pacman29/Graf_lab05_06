@@ -32,7 +32,16 @@ void MainWindow::Mouse_current_pos()
 
 void MainWindow::Mouse_click_pos()
 {
-
+    if(ui->Press_start_point->isChecked())
+    {
+        ui->Canvas->add_line = false;
+        ui->X_box->setValue(ui->Canvas->coord_click.x());
+        ui->Y_box->setValue(ui->Canvas->coord_click.y());
+    }
+    else
+    {
+        ui->Canvas->add_line = true;
+    }
 }
 
 void MainWindow::Mouse_left()
@@ -42,17 +51,12 @@ void MainWindow::Mouse_left()
 
 void MainWindow::on_Clear_btn_clicked()
 {
-    delete pix;
-    pix = new QPixmap(ui->Canvas->size());
-    pix->fill(Qt::black);
-    QPainter paint(pix);
-   paint.setBrush(QBrush(Qt::white));
-    paint.setPen(QPen(Qt::black));
-    paint.drawRect(0,0+1,ui->Canvas->width()-3,ui->Canvas->height()-3);
-    ui->Canvas->setPixmap(*pix);
+    ui->Canvas->Clear_canvas();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     on_Clear_btn_clicked();
+    ui->X_box->setMaximum(pix->width());
+    ui->Y_box->setMaximum(pix->height());
 }

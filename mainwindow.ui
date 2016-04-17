@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>813</width>
+    <width>825</width>
     <height>598</height>
    </rect>
   </property>
@@ -68,12 +68,59 @@
            <property name="text">
             <string>Заливка</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="Fuse_rbt">
            <property name="text">
             <string>Затравка</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>120</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Kalinga</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="title">
+         <string>Рисование:</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QRadioButton" name="Press_start_point">
+           <property name="text">
+            <string>Установка начальной точки</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="Draw_Lines">
+           <property name="text">
+            <string>Рисование линий</string>
            </property>
           </widget>
          </item>
@@ -145,7 +192,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="Y_Box">
+            <widget class="QSpinBox" name="Y_box">
              <property name="font">
               <font>
                <family>Lucida Console</family>
