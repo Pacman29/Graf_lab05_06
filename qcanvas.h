@@ -28,6 +28,7 @@ public:
 
     void Clear_canvas();
     void Add_lines(QPoint S,QPoint F);
+    void Add_centre_point(QPoint centre);
 
     bool add_line;
 private:

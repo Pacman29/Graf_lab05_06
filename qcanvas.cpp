@@ -53,6 +53,9 @@ void QCanvas::mousePressEvent(QMouseEvent *event)
     {
         coord_click.setX(event->x());
         coord_click.setY(event->y());
+        delete pix;
+        pix = new QPixmap(*old);
+        Add_centre_point(coord_click);
     }
     this->setToolTip(QString("%1 : %2").arg( event->x()).arg( event->y()));
     this->setToolTipDuration(0);
@@ -77,6 +80,7 @@ void QCanvas::leaveEvent(QEvent *event)
 void QCanvas::Clear_canvas()
 {
     delete pix;
+    delete old;
     pix = new QPixmap(this->size());
     pix->fill(Qt::black);
     QPainter paint(pix);
@@ -84,12 +88,22 @@ void QCanvas::Clear_canvas()
     paint.setPen(QPen(Qt::black));
     paint.drawRect(0,0+1,this->width()-3,this->height()-3);
     this->setPixmap(*pix);
+    old = new QPixmap(*pix);
 }
 
 void QCanvas::Add_lines(QPoint S, QPoint F)
 {
     QPainter paint(pix);
     paint.drawLine(S,F);
+    this->setPixmap(*pix);
+}
+
+void QCanvas::Add_centre_point(QPoint centre)
+{
+    QPainter paint(pix);
+    paint.setPen(QPen(Qt::red));
+    paint.drawLine(QPoint(centre.x()-2,centre.y()-2),QPoint(centre.x()+2,centre.y()+2));
+    paint.drawLine(QPoint(centre.x()-2,centre.y()+2),QPoint(centre.x()+2,centre.y()-2));
     this->setPixmap(*pix);
 }
 
