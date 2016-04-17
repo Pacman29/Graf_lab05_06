@@ -16,12 +16,21 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_4">
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QCanvas" name="Canvas">
       <property name="minimumSize">
        <size>
         <width>600</width>
-        <height>0</height>
+        <height>548</height>
        </size>
+      </property>
+      <property name="cursor">
+       <cursorShape>CrossCursor</cursorShape>
+      </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
       </property>
       <property name="text">
        <string/>
@@ -46,7 +55,7 @@
         </property>
         <property name="font">
          <font>
-          <family>David</family>
+          <family>Kalinga</family>
           <pointsize>9</pointsize>
          </font>
         </property>
@@ -87,7 +96,7 @@
         </property>
         <property name="font">
          <font>
-          <family>David</family>
+          <family>Kalinga</family>
           <pointsize>9</pointsize>
          </font>
         </property>
@@ -220,6 +229,13 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QCanvas</class>
+   <extends>QLabel</extends>
+   <header location="global">qcanvas.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
