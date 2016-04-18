@@ -7,7 +7,6 @@ QCanvas::QCanvas(QWidget *parent) : QLabel(parent)
     coord_click.setX(0);
     coord_click.setY(0);
     pix = new QPixmap(this->size());
-    old = new QPixmap(this->size());
     Clear_canvas();
     pressed = false;
 
@@ -17,70 +16,34 @@ void QCanvas::mouseMoveEvent(QMouseEvent *event)
 {
     coord_move.setX(event->x());
     coord_move.setY(event->y());
-    if(add_line)
-        if(pressed)
-        {
-            delete pix;
-            pix = new QPixmap(*old);
-            Add_lines(coord_click,coord_move);
-        }
-
     this->setToolTip(QString("%1 : %2").arg( event->x()).arg( event->y()));
-    emit mouse_Pos();
+    emit mouse_moveevent();
 }
 
 void QCanvas::mousePressEvent(QMouseEvent *event)
 {
-
-    if(add_line)
-        if (!pressed)
-        {
-            delete old;
-            old = new QPixmap(*pix);
-            pressed = true;
-            coord_click.setX(event->x());
-            coord_click.setY(event->y());
-        }
-        else
-        {
-            coord_move.setX(event->x());
-            coord_move.setY(event->y());
-            delete pix;
-            pix = new QPixmap(*old);
-            Add_lines(coord_click,coord_move);
-        }
-    else
-    {
-        coord_click.setX(event->x());
-        coord_click.setY(event->y());
-        delete pix;
-        pix = new QPixmap(*old);
-        Add_centre_point(coord_click);
-    }
+    pressed = true;
+    coord_click.setX(event->x());
+    coord_click.setY(event->y());
     this->setToolTip(QString("%1 : %2").arg( event->x()).arg( event->y()));
     this->setToolTipDuration(0);
-    emit mouse_Press();
+    emit mouse_pressevent();
 }
 
 void QCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(add_line)
-    {
-        pressed = false;
-        delete old;
-        old = new QPixmap(*pix);
-    }
+    pressed = false;
+    emit mouse_releaseevent();
 }
 
 void QCanvas::leaveEvent(QEvent *event)
 {
-    emit mouse_Left();
+    emit mouse_leaveevent();
 }
 
 void QCanvas::Clear_canvas()
 {
     delete pix;
-    delete old;
     pix = new QPixmap(this->size());
     pix->fill(Qt::black);
     QPainter paint(pix);
@@ -88,7 +51,6 @@ void QCanvas::Clear_canvas()
     paint.setPen(QPen(Qt::black));
     paint.drawRect(0,0+1,this->width()-3,this->height()-3);
     this->setPixmap(*pix);
-    old = new QPixmap(*pix);
 }
 
 void QCanvas::Add_lines(QPoint S, QPoint F)
@@ -98,12 +60,29 @@ void QCanvas::Add_lines(QPoint S, QPoint F)
     this->setPixmap(*pix);
 }
 
-void QCanvas::Add_centre_point(QPoint centre)
+void QCanvas::save_obj_line(QPoint S, QPoint F)
 {
-    QPainter paint(pix);
-    paint.setPen(QPen(Qt::red));
-    paint.drawLine(QPoint(centre.x()-2,centre.y()-2),QPoint(centre.x()+2,centre.y()+2));
-    paint.drawLine(QPoint(centre.x()-2,centre.y()+2),QPoint(centre.x()+2,centre.y()-2));
-    this->setPixmap(*pix);
+    line_t line;
+    line.S = S;
+    line.F = F;
+    obj_lines.push_back(line);
 }
+
+void QCanvas::draw_all_save_obj()
+{
+    for(size_t i = 0; i<obj_lines.size();++i)
+        Add_lines(obj_lines.value(i).S,obj_lines.value(i).F);
+}
+
+void QCanvas::delete_all_save_obj()
+{
+    obj_lines.clear();
+}
+
+bool QCanvas::mouse_button_press()
+{
+    return pressed;
+}
+
+
 

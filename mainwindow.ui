@@ -108,17 +108,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QRadioButton" name="Press_start_point">
-           <property name="text">
-            <string>Установка начальной точки</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="Draw_Lines">
+          <widget class="QCheckBox" name="Draw_Lines">
            <property name="text">
             <string>Рисование линий</string>
            </property>

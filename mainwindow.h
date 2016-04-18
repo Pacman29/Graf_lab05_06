@@ -25,6 +25,7 @@ private slots:
     void Mouse_current_pos();
     void Mouse_click_pos();
     void Mouse_left();
+    void Mouse_unpress();
 
     void on_Clear_btn_clicked();
 

@@ -12,9 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     on_Clear_btn_clicked();
 
-    connect(ui->Canvas,SIGNAL(mouse_Left()),this,SLOT(Mouse_left()));
-    connect(ui->Canvas,SIGNAL(mouse_Pos()),this,SLOT(Mouse_current_pos()));
-    connect(ui->Canvas,SIGNAL(mouse_Press()),this,SLOT(Mouse_click_pos()));
+    connect(ui->Canvas,SIGNAL(mouse_leaveevent()),this,SLOT(Mouse_left()));
+    connect(ui->Canvas,SIGNAL(mouse_moveevent()),this,SLOT(Mouse_current_pos()));
+    connect(ui->Canvas,SIGNAL(mouse_pressevent()),this,SLOT(Mouse_click_pos()));
+    connect(ui->Canvas,SIGNAL(mouse_releaseevent()),this,SLOT(Mouse_unpress()));
 
 
 }
@@ -27,20 +28,21 @@ MainWindow::~MainWindow()
 void MainWindow::Mouse_current_pos()
 {
     ui->statusBar->showMessage(QString("Координаты курсора %1 : %2 ").arg(ui->Canvas->coord_move.x()).arg(ui->Canvas->coord_move.y()));
-
+    if(ui->Draw_Lines->isChecked() && ui->Canvas->mouse_button_press())
+    {
+        ui->Canvas->Clear_canvas();
+        ui->Canvas->draw_all_save_obj();
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+    }
 }
 
 void MainWindow::Mouse_click_pos()
 {
-    if(ui->Press_start_point->isChecked())
+    if(ui->Draw_Lines->isChecked())
     {
-        ui->Canvas->add_line = false;
-        ui->X_box->setValue(ui->Canvas->coord_click.x());
-        ui->Y_box->setValue(ui->Canvas->coord_click.y());
-    }
-    else
-    {
-        ui->Canvas->add_line = true;
+        ui->Canvas->Clear_canvas();
+        ui->Canvas->draw_all_save_obj();
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
     }
 }
 
@@ -48,9 +50,19 @@ void MainWindow::Mouse_left()
 {
 }
 
+void MainWindow::Mouse_unpress()
+{
+    if(ui->Draw_Lines->isChecked())
+    {
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+        ui->Canvas->save_obj_line(ui->Canvas->coord_click,ui->Canvas->coord_move);
+    }
+}
+
 
 void MainWindow::on_Clear_btn_clicked()
 {
+    ui->Canvas->delete_all_save_obj();
     ui->Canvas->Clear_canvas();
 }
 

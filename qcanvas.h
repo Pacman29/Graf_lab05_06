@@ -16,6 +16,11 @@
 class QCanvas : public QLabel
 {
     Q_OBJECT
+    typedef struct line_type{
+        QPoint S;
+        QPoint F;
+    }line_t;
+
 public:
     explicit QCanvas(QWidget *parent = 0);
 
@@ -28,19 +33,22 @@ public:
 
     void Clear_canvas();
     void Add_lines(QPoint S,QPoint F);
-    void Add_centre_point(QPoint centre);
+    void save_obj_line(QPoint S,QPoint F);
+    void draw_all_save_obj();
+    void delete_all_save_obj();
 
-    bool add_line;
+    bool mouse_button_press();
+
 private:
-    QPixmap *old;
     QPixmap *pix;
     bool pressed;
+    QVector<line_t> obj_lines;
 
 signals:
-    void mouse_Press();
-    void mouse_Left();
-    void mouse_Pos();
-
+    void mouse_pressevent();
+    void mouse_leaveevent();
+    void mouse_moveevent();
+    void mouse_releaseevent();
 public slots:
 };
 
