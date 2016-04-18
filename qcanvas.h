@@ -30,6 +30,7 @@ public:
     void leaveEvent(QEvent *event);
     QPoint coord_move;
     QPoint coord_click;
+    QPoint coord_click_old;
 
     void Clear_canvas();
     void Add_lines(QPoint S,QPoint F);

@@ -8,7 +8,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->Canvas->setMouseTracking(true);
-    pix = new QPixmap(ui->Canvas->size());
 
     on_Clear_btn_clicked();
 
@@ -17,7 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->Canvas,SIGNAL(mouse_pressevent()),this,SLOT(Mouse_click_pos()));
     connect(ui->Canvas,SIGNAL(mouse_releaseevent()),this,SLOT(Mouse_unpress()));
 
-
+    print_btn_pressed = false;
+    first_click = false;
 }
 
 MainWindow::~MainWindow()
@@ -28,22 +28,66 @@ MainWindow::~MainWindow()
 void MainWindow::Mouse_current_pos()
 {
     ui->statusBar->showMessage(QString("Координаты курсора %1 : %2 ").arg(ui->Canvas->coord_move.x()).arg(ui->Canvas->coord_move.y()));
-    if(ui->Draw_Lines->isChecked() && ui->Canvas->mouse_button_press())
+    if(!print_btn_pressed)
+    {
+        if(ui->Draw_Lines->isChecked() && ui->Canvas->mouse_button_press())
+        {
+            ui->Canvas->Clear_canvas();
+            ui->Canvas->draw_all_save_obj();
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+        }
+    }
+
+    if(ui->Draw_Polygon->isChecked() && first_click)
     {
         ui->Canvas->Clear_canvas();
         ui->Canvas->draw_all_save_obj();
         ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
     }
+
 }
 
 void MainWindow::Mouse_click_pos()
 {
-    if(ui->Draw_Lines->isChecked())
+    if(!print_btn_pressed)
     {
-        ui->Canvas->Clear_canvas();
-        ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+        if(ui->Draw_Lines->isChecked())
+        {
+            ui->Canvas->Clear_canvas();
+            ui->Canvas->draw_all_save_obj();
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+        }
+        else
+            if(!first_click)
+            {
+                first_click = true;
+                start_poli = ui->Canvas->coord_click;
+                ui->Canvas->coord_click_old = ui->Canvas->coord_click;
+            }
+            else
+            {
+                if (near(start_poli,ui->Canvas->coord_move))
+                {
+                    first_click = false;
+                    ui->Canvas->Clear_canvas();
+                    ui->Canvas->draw_all_save_obj();
+                    ui->Canvas->Add_lines(ui->Canvas->coord_click_old,start_poli);
+                    ui->Canvas->save_obj_line(ui->Canvas->coord_click_old,start_poli);
+                }
+                else
+                {
+                    ui->Canvas->Clear_canvas();
+                    ui->Canvas->draw_all_save_obj();
+                    ui->Canvas->Add_lines(ui->Canvas->coord_click_old,ui->Canvas->coord_move);
+                    ui->Canvas->save_obj_line(ui->Canvas->coord_click_old,ui->Canvas->coord_move);
+                }
+            }
     }
+    else
+    {
+        // заливка
+    }
+
 }
 
 void MainWindow::Mouse_left()
@@ -52,10 +96,17 @@ void MainWindow::Mouse_left()
 
 void MainWindow::Mouse_unpress()
 {
-    if(ui->Draw_Lines->isChecked())
+    if(!print_btn_pressed)
     {
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
-        ui->Canvas->save_obj_line(ui->Canvas->coord_click,ui->Canvas->coord_move);
+        if(ui->Draw_Lines->isChecked())
+        {
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+            ui->Canvas->save_obj_line(ui->Canvas->coord_click,ui->Canvas->coord_move);
+        }
+        else
+        {
+
+        }
     }
 }
 
@@ -67,8 +118,45 @@ void MainWindow::on_Clear_btn_clicked()
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
+{   
+    ui->Canvas->Clear_canvas();
+    ui->Canvas->draw_all_save_obj();
+}
+
+bool MainWindow::near(QPoint old, QPoint now)
 {
-    on_Clear_btn_clicked();
-    ui->X_box->setMaximum(pix->width());
-    ui->Y_box->setMaximum(pix->height());
+
+    if( old.x() - 2 <=  now.x() &&
+        old.x() + 2 >=  now.x() &&
+        old.y() - 2 <=  now.y() &&
+        old.y() + 2 >=  now.y() )
+        return true;
+    else
+        return false;
+}
+
+void MainWindow::on_Print_bth_clicked()
+{
+
+    if(ui->Fuse_rbt->isChecked())
+    {
+        ui->Fill_Gbox->setEnabled(print_btn_pressed);
+        ui->Draw_Gbox->setEnabled(print_btn_pressed);
+        ui->Clear_btn->setEnabled(print_btn_pressed);
+
+        if(!print_btn_pressed)
+        {
+            print_btn_pressed = true;
+            ui->Print_bth->setText("Отмена");
+        }
+        else
+        {
+            print_btn_pressed = false;
+            ui->Print_bth->setText("Заполнить");
+        }
+    }
+    else
+    {
+
+    }
 }

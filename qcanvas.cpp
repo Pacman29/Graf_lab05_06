@@ -6,6 +6,8 @@ QCanvas::QCanvas(QWidget *parent) : QLabel(parent)
     coord_move.setY(0);
     coord_click.setX(0);
     coord_click.setY(0);
+    coord_click_old.setX(-1);
+    coord_click_old.setY(-1);
     pix = new QPixmap(this->size());
     Clear_canvas();
     pressed = false;
@@ -23,6 +25,7 @@ void QCanvas::mouseMoveEvent(QMouseEvent *event)
 void QCanvas::mousePressEvent(QMouseEvent *event)
 {
     pressed = true;
+    coord_click_old = coord_click;
     coord_click.setX(event->x());
     coord_click.setY(event->y());
     this->setToolTip(QString("%1 : %2").arg( event->x()).arg( event->y()));
@@ -56,6 +59,7 @@ void QCanvas::Clear_canvas()
 void QCanvas::Add_lines(QPoint S, QPoint F)
 {
     QPainter paint(pix);
+    paint.setPen(QPen(QBrush(Qt::black),2));
     paint.drawLine(S,F);
     this->setPixmap(*pix);
 }
