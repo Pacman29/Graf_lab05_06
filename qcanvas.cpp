@@ -1,4 +1,10 @@
 #include "qcanvas.h"
+#include <windows.h>
+#include "cmath"
+#include <QDebug>
+
+#include <QTime>
+#include <QCoreApplication>
 
 QCanvas::QCanvas(QWidget *parent) : QLabel(parent)
 {
@@ -81,6 +87,155 @@ void QCanvas::draw_all_save_obj()
 void QCanvas::delete_all_save_obj()
 {
     obj_lines.clear();
+}
+
+void QCanvas::xor_with_line(QColor color,QColor background)
+{
+    if (obj_lines.isEmpty())
+        return;
+    size_t min_x =  get_min_x().x();
+    size_t max_x =  get_max_x().x();
+
+    size_t line_x = (min_x+max_x)/2;
+
+    if( min_x == SIZE_MAX || max_x == SIZE_MAX)
+        return;
+
+    QImage im = pix->toImage();
+    Clear_canvas();
+    for(size_t i = 0; i<obj_lines.size(); ++i)
+    {
+        QPoint S = obj_lines.value(i).S;
+        QPoint F = obj_lines.value(i).F;
+
+        if( func(S,F,S.x()) == SIZE_MAX )
+        {
+            if(S.y()<F.y())
+                std::swap(S,F);
+            for(size_t j = S.y(); j<F.y(); ++j)
+            {
+                size_t x = S.x();
+                int koef = 0;
+                if(x < line_x)
+                {
+                    koef = 1;
+                    x+=1;
+                }
+                else
+                {
+                    koef = -1;
+                    x-=1;
+                }
+                while(x != line_x)
+                {
+                    if(enabled_pix(color,QPoint(x,j)))
+                        im.setPixel(x,j,background.rgb());
+                    else
+                        im.setPixel(x,j,color.rgb());
+                    x+=koef;
+                }
+            }
+        }
+        else
+        {
+            if(S.x() > F.x())
+                std::swap(S,F);
+
+            size_t y_last = 0;
+            for(size_t j = S.x(); j<F.x(); ++j)
+            {
+                size_t y = func(S,F,j);
+                size_t x = j;
+
+//                if(y_last == y)
+//                {
+//                    y_last == y;
+//                    continue;
+//                }
+                qDebug()<<x<<func(S,F,j);;
+                int koef = 0;
+                if(x < line_x)
+                {
+                    koef = 1;
+                    x+=1;
+                }
+                else if (x > line_x)
+                {
+                    koef = -1;
+                    x-=1;
+                }
+                else
+                    continue;
+                while(x != line_x)
+                {
+                    if(enabled_pix(color,QPoint(x,y)))
+                        im.setPixel(x,y,background.rgb());
+                    else
+                        im.setPixel(x,y,color.rgb());
+                    x+=koef;
+                }
+                pix->convertFromImage(im);
+                this->setPixmap(*pix);
+
+//                QTime dieTime= QTime::currentTime().addSecs(1);
+//                while (QTime::currentTime() < dieTime)
+//                    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            }
+        }
+
+    }
+    draw_all_save_obj();
+}
+
+bool QCanvas::enabled_pix(QColor color, QPoint p)
+{
+    QColor tmp(pix->toImage().pixel(p.x(),p.y()));
+    if (tmp == color)
+        return true;
+    else
+        return false;
+}
+
+QPoint QCanvas::get_min_x()
+{
+    if(obj_lines.isEmpty())
+        return QPoint(SIZE_MAX,SIZE_MAX);
+    line_t tmp;
+    QPoint min = (obj_lines.value(0).S.x() < obj_lines.value(0).F.x()) ? (obj_lines.value(0).S):(obj_lines.value(0).F);
+    for(size_t i = 0; i<obj_lines.size(); ++i)
+    {
+        tmp = obj_lines.value(i);
+        if (tmp.S.x() < min.x())
+            min = tmp.S;
+        if (tmp.F.x() < min.x())
+            min = tmp.F;
+    }
+    return min;
+}
+
+QPoint QCanvas::get_max_x()
+{
+    if(obj_lines.isEmpty())
+        return QPoint(SIZE_MAX,SIZE_MAX);
+    line_t tmp;
+    QPoint max = (obj_lines.value(0).S.x() < obj_lines.value(0).F.x()) ? (obj_lines.value(0).S):(obj_lines.value(0).F);
+    for(size_t i = 0; i<obj_lines.size(); ++i)
+    {
+        tmp = obj_lines.value(i);
+        if (tmp.S.x() > max.x())
+            max = tmp.S;
+        if (tmp.F.x() > max.x())
+            max = tmp.F;
+    }
+    return max;
+}
+
+double QCanvas::func(QPoint p1, QPoint p2, size_t x)
+{
+    if (p1.x() == p2.x())
+        return SIZE_MAX;
+    //return round ( (double) (x*(p2.y() - p1.y()) - p1.x()*p2.y() + p1.y()*p2.x())/ (double) (p2.x() - p1.x()));
+    return (p2.y() - p1.y())*(x-p1.x())/(p2.x()-p1.x())+p1.y();
 }
 
 bool QCanvas::mouse_button_press()

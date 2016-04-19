@@ -85,7 +85,6 @@ void MainWindow::Mouse_click_pos()
     }
     else
     {
-        // заливка
     }
 
 }
@@ -113,6 +112,7 @@ void MainWindow::Mouse_unpress()
 
 void MainWindow::on_Clear_btn_clicked()
 {
+    first_click = false;
     ui->Canvas->delete_all_save_obj();
     ui->Canvas->Clear_canvas();
 }
@@ -157,6 +157,6 @@ void MainWindow::on_Print_bth_clicked()
     }
     else
     {
-
+        ui->Canvas->xor_with_line(Qt::red,Qt::white);
     }
 }
