@@ -89,7 +89,7 @@ void QCanvas::delete_all_save_obj()
     obj_lines.clear();
 }
 
-void QCanvas::xor_with_line(QColor color,QColor background)
+void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
 {
     if (obj_lines.isEmpty())
         return;
@@ -142,12 +142,134 @@ void QCanvas::xor_with_line(QColor color,QColor background)
             pix->convertFromImage(im);
             this->setPixmap(*pix);
         }
-
-        QTime dieTime= QTime::currentTime().addSecs(1);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+        if(time_sleep)
+        {
+            QTime dieTime= QTime::currentTime().addSecs(1);
+            while (QTime::currentTime() < dieTime)
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+        }
     }
     draw_all_save_obj();
+}
+
+void QCanvas::fill_algorithm(QPoint start, QColor color,QColor border, bool time_sleep)
+{
+    QVector<QPoint> stack;
+    QImage im(pix->toImage());
+
+    im.setPixel(start,color.rgb());
+    stack.push_back(start);
+
+
+    while(!stack.isEmpty())
+    {
+        QPoint tmp_pix = stack.takeLast();
+        im.setPixel(tmp_pix,color.rgb());
+
+        size_t tmp_x = tmp_pix.x();
+        tmp_pix.setX(tmp_x+1);
+
+        while(im.pixel(tmp_pix) != border.rgb())
+        {
+            im.setPixel(tmp_pix,color.rgb());
+            tmp_pix.setX(tmp_pix.x()+1);
+        }
+
+        size_t x_r = tmp_pix.x() - 1;
+        tmp_pix.setX(tmp_x-1);
+
+        while(im.pixel(tmp_pix) != border.rgb())
+        {
+            im.setPixel(tmp_pix,color.rgb());
+            tmp_pix.setX(tmp_pix.x()-1);
+        }
+
+        size_t x_l = tmp_pix.x() + 1;
+        tmp_pix.setX(x_l);
+        tmp_pix.setY(tmp_pix.y()+1);
+        while(tmp_pix.x() <= x_r)
+        {
+            bool flag = false;
+            while(im.pixel(tmp_pix) != border.rgb() &&
+                  im.pixel(tmp_pix) != color.rgb() &&
+                  tmp_pix.x() <= x_r)
+            {
+                if(!flag)
+                    flag = true;
+                tmp_pix.setX(tmp_pix.x()+1);
+            }
+            if(flag)
+            {
+                if (tmp_pix.x() == x_r &&
+                    im.pixel(tmp_pix) != border.rgb() &&
+                    im.pixel(tmp_pix) != color.rgb())
+                    stack.push_back(tmp_pix);
+                else
+                    stack.push_back(QPoint(tmp_pix.x()-1,tmp_pix.y()));
+                flag = false;
+            }
+            size_t x_st = tmp_pix.x();
+            while(im.pixel(tmp_pix) == border.rgb() ||
+                  im.pixel(tmp_pix) == color.rgb() &&
+                  tmp_pix.x() <= x_r)
+                tmp_pix.setX(tmp_pix.x()+1);
+            if(tmp_pix.x() == x_st)
+                tmp_pix.setX(tmp_pix.x()+1);
+        }
+
+        if(time_sleep)
+        {
+
+            pix->convertFromImage(im);
+            this->setPixmap(*pix);
+            QTime dieTime= QTime::currentTime().addMSecs(10);
+            while (QTime::currentTime() < dieTime)
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
+        tmp_pix.setX(x_l);
+        tmp_pix.setY(tmp_pix.y()-2);
+        while(tmp_pix.x() <= x_r)
+        {
+            bool flag = false;
+            while(im.pixel(tmp_pix) != border.rgb() &&
+                  im.pixel(tmp_pix) != color.rgb() &&
+                  tmp_pix.x() <= x_r)
+            {
+                if(!flag)
+                    flag = true;
+                tmp_pix.setX(tmp_pix.x()+1);
+            }
+            if(flag)
+            {
+                if (tmp_pix.x() == x_r &&
+                    im.pixel(tmp_pix) != border.rgb() &&
+                    im.pixel(tmp_pix) != color.rgb())
+                    stack.push_back(tmp_pix);
+                else
+                    stack.push_back(QPoint(tmp_pix.x()-1,tmp_pix.y()));
+                flag = false;
+            }
+            size_t x_st = tmp_pix.x();
+            while(im.pixel(tmp_pix) == border.rgb() ||
+                  im.pixel(tmp_pix) == color.rgb() &&
+                  tmp_pix.x() <= x_r)
+                tmp_pix.setX(tmp_pix.x()+1);
+            if(tmp_pix.x() == x_st)
+                tmp_pix.setX(tmp_pix.x()+1);
+        }
+        if(time_sleep)
+        {
+
+            pix->convertFromImage(im);
+            this->setPixmap(*pix);
+            QTime dieTime= QTime::currentTime().addMSecs(10);
+            while (QTime::currentTime() < dieTime)
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
+    }
+
+    pix->convertFromImage(im);
+    this->setPixmap(*pix);
 }
 
 bool QCanvas::enabled_pix(QColor color, QPoint p)
@@ -198,7 +320,6 @@ double QCanvas::func(QPoint p1, QPoint p2, size_t y)
     if (p1.y() == p2.y())
         return SIZE_MAX;
     return  (y*(p2.x() - p1.x())+ p1.x()*p2.y()-p1.y()*p2.x())/(double)(p2.y()-p1.y());
-//    return (p2.y() - p1.y())*(x-p1.x())/(p2.x()-p1.x())+p1.y();
 }
 
 bool QCanvas::mouse_button_press()

@@ -29,6 +29,7 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
     void leaveEvent(QEvent *event);
     QPoint coord_move;
+    QPoint coord_move_old;
     QPoint coord_click;
     QPoint coord_click_old;
 
@@ -38,7 +39,8 @@ public:
     void draw_all_save_obj();
     void delete_all_save_obj();
 
-    void xor_with_line(QColor color, QColor background);
+    void xor_with_line(QColor color, QColor background, bool time_sleep);
+    void fill_algorithm(QPoint start, QColor color, QColor border, bool time_sleep);
     bool enabled_pix(QColor color, QPoint p);
 
     bool mouse_button_press();

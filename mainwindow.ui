@@ -72,7 +72,7 @@
          <item>
           <widget class="QRadioButton" name="Fill_rbt">
            <property name="text">
-            <string>Заливка</string>
+            <string>Затравка</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -82,7 +82,7 @@
          <item>
           <widget class="QRadioButton" name="Fuse_rbt">
            <property name="text">
-            <string>Затравка</string>
+            <string>Построчная заливка</string>
            </property>
           </widget>
          </item>
@@ -126,7 +126,14 @@
             </font>
            </property>
            <property name="text">
-            <string>Многоугольника</string>
+            <string>Многоугольник</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="Draw_Pixel">
+           <property name="text">
+            <string>Точка</string>
            </property>
           </widget>
          </item>
@@ -172,6 +179,19 @@
         </property>
         <property name="text">
          <string>Очистить</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="Sleep_box">
+        <property name="font">
+         <font>
+          <family>Kalinga</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Задержка</string>
         </property>
        </widget>
       </item>

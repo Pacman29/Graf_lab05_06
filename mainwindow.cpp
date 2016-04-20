@@ -45,19 +45,29 @@ void MainWindow::Mouse_current_pos()
         ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
     }
 
+    if(ui->Draw_Pixel->isChecked() && ui->Canvas->mouse_button_press())
+    {
+        ui->Canvas->Clear_canvas();
+        ui->Canvas->draw_all_save_obj();
+        ui->Canvas->Add_lines(ui->Canvas->coord_move_old,ui->Canvas->coord_move);
+        ui->Canvas->save_obj_line(ui->Canvas->coord_move_old,ui->Canvas->coord_move);
+        ui->Canvas->coord_move_old = ui->Canvas->coord_move;
+    }
+
 }
 
 void MainWindow::Mouse_click_pos()
 {
     if(!print_btn_pressed)
     {
+        ui->Canvas->coord_move_old = ui->Canvas->coord_click;
         if(ui->Draw_Lines->isChecked())
         {
             ui->Canvas->Clear_canvas();
             ui->Canvas->draw_all_save_obj();
             ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
         }
-        else
+        else if(!ui->Draw_Pixel->isChecked())
             if(!first_click)
             {
                 first_click = true;
@@ -85,6 +95,8 @@ void MainWindow::Mouse_click_pos()
     }
     else
     {
+        ui->Canvas->fill_algorithm(ui->Canvas->coord_click,Qt::red,Qt::black,ui->Sleep_box->isChecked());
+        on_Print_bth_clicked();
     }
 
 }
@@ -126,10 +138,10 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 bool MainWindow::near(QPoint old, QPoint now)
 {
 
-    if( old.x() - 2 <=  now.x() &&
-        old.x() + 2 >=  now.x() &&
-        old.y() - 2 <=  now.y() &&
-        old.y() + 2 >=  now.y() )
+    if( old.x() - 3 <=  now.x() &&
+        old.x() + 3 >=  now.x() &&
+        old.y() - 3 <=  now.y() &&
+        old.y() + 3 >=  now.y() )
         return true;
     else
         return false;
@@ -157,6 +169,6 @@ void MainWindow::on_Print_bth_clicked()
     }
     else
     {
-        ui->Canvas->xor_with_line(Qt::red,Qt::white);
+        ui->Canvas->xor_with_line(Qt::red,Qt::white,ui->Sleep_box->isChecked());
     }
 }
