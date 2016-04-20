@@ -108,81 +108,44 @@ void QCanvas::xor_with_line(QColor color,QColor background)
         QPoint S = obj_lines.value(i).S;
         QPoint F = obj_lines.value(i).F;
 
-        if( func(S,F,S.x()) == SIZE_MAX )
+        if(S.y() > F.y())
+            std::swap(S,F);
+
+        for(size_t j = S.y(); j<F.y(); ++j)
         {
-            if(S.y()<F.y())
-                std::swap(S,F);
-            for(size_t j = S.y(); j<F.y(); ++j)
+            size_t x = func(S,F,j);
+            size_t y = j;
+            while(x < line_x)
             {
-                size_t x = S.x();
-                int koef = 0;
-                if(x < line_x)
-                {
-                    koef = 1;
-                    x+=1;
-                }
+                if(enabled_pix(color,QPoint(x,y)))
+                    im.setPixel(x,y,background.rgb());
                 else
-                {
-                    koef = -1;
-                    x-=1;
-                }
-                while(x != line_x)
-                {
-                    if(enabled_pix(color,QPoint(x,j)))
-                        im.setPixel(x,j,background.rgb());
-                    else
-                        im.setPixel(x,j,color.rgb());
-                    x+=koef;
-                }
+                    im.setPixel(x,y,color.rgb());
+                x++;
             }
-        }
-        else
-        {
-            if(S.x() > F.x())
-                std::swap(S,F);
-
-            size_t y_last = 0;
-            for(size_t j = S.x(); j<F.x(); ++j)
+            if(x == line_x)
             {
-                size_t y = func(S,F,j);
-                size_t x = j;
-
-//                if(y_last == y)
-//                {
-//                    y_last == y;
-//                    continue;
-//                }
-                qDebug()<<x<<func(S,F,j);;
-                int koef = 0;
-                if(x < line_x)
-                {
-                    koef = 1;
-                    x+=1;
-                }
-                else if (x > line_x)
-                {
-                    koef = -1;
-                    x-=1;
-                }
+                if(enabled_pix(color,QPoint(x,y)))
+                    im.setPixel(x,y,background.rgb());
                 else
-                    continue;
-                while(x != line_x)
-                {
-                    if(enabled_pix(color,QPoint(x,y)))
-                        im.setPixel(x,y,background.rgb());
-                    else
-                        im.setPixel(x,y,color.rgb());
-                    x+=koef;
-                }
-                pix->convertFromImage(im);
-                this->setPixmap(*pix);
-
-//                QTime dieTime= QTime::currentTime().addSecs(1);
-//                while (QTime::currentTime() < dieTime)
-//                    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                    im.setPixel(x,y,color.rgb());
             }
+            while (x > line_x)
+            {
+                if(enabled_pix(color,QPoint(x,y)))
+                    im.setPixel(x,y,background.rgb());
+                else
+                    im.setPixel(x,y,color.rgb());
+                x--;
+            }
+
+            pix->convertFromImage(im);
+            this->setPixmap(*pix);
         }
 
+        QTime dieTime= QTime::currentTime().addSecs(1);
+        while (QTime::currentTime() < dieTime)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
     }
     draw_all_save_obj();
 }
@@ -230,12 +193,12 @@ QPoint QCanvas::get_max_x()
     return max;
 }
 
-double QCanvas::func(QPoint p1, QPoint p2, size_t x)
+double QCanvas::func(QPoint p1, QPoint p2, size_t y)
 {
-    if (p1.x() == p2.x())
+    if (p1.y() == p2.y())
         return SIZE_MAX;
-    //return round ( (double) (x*(p2.y() - p1.y()) - p1.x()*p2.y() + p1.y()*p2.x())/ (double) (p2.x() - p1.x()));
-    return (p2.y() - p1.y())*(x-p1.x())/(p2.x()-p1.x())+p1.y();
+    return  (y*(p2.x() - p1.x())+ p1.x()*p2.y()-p1.y()*p2.x())/(double)(p2.y()-p1.y());
+//    return (p2.y() - p1.y())*(x-p1.x())/(p2.x()-p1.x())+p1.y();
 }
 
 bool QCanvas::mouse_button_press()

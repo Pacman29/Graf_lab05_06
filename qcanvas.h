@@ -50,7 +50,7 @@ private:
     QPoint get_min_x();
     QPoint get_max_x();
 
-    double func(QPoint p1, QPoint p2, size_t x);
+    double func(QPoint p1, QPoint p2, size_t y);
 
 signals:
     void mouse_pressevent();
