@@ -44,65 +44,163 @@
      </widget>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QGroupBox" name="Fill_Gbox">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>100</height>
-         </size>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Заливка</string>
+       </attribute>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>168</width>
+          <height>370</height>
+         </rect>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>120</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Kalinga</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="title">
-         <string>Вид заполнения области:</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QRadioButton" name="Fill_rbt">
-           <property name="text">
-            <string>Затравка</string>
+          <widget class="QGroupBox" name="Fill_Gbox">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>100</height>
+            </size>
            </property>
-           <property name="checked">
-            <bool>true</bool>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>120</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Kalinga</family>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="title">
+            <string>Вид заполнения области:</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QRadioButton" name="Fill_rbt">
+              <property name="text">
+               <string>Затравка</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="Fuse_rbt">
+              <property name="text">
+               <string>Построчная заливка</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="Draw_Gbox">
+           <property name="font">
+            <font>
+             <family>Kalinga</family>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="title">
+            <string>Рисование</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QRadioButton" name="Draw_Lines">
+              <property name="font">
+               <font>
+                <family>Kalinga</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Линия</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="Draw_Polygon">
+              <property name="font">
+               <font>
+                <family>Kalinga</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Многоугольник</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="Draw_Pixel">
+              <property name="text">
+               <string>Точка</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Print_bth">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>David</family>
+             <pointsize>12</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Заполнить</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="Fuse_rbt">
+          <widget class="QPushButton" name="Clear_btn">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>David</family>
+             <pointsize>12</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
            <property name="text">
-            <string>Построчная заливка</string>
+            <string>Очистить</string>
            </property>
           </widget>
          </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="Draw_Gbox">
-        <property name="font">
-         <font>
-          <family>Kalinga</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="title">
-         <string>Рисование</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QRadioButton" name="Draw_Lines">
+          <widget class="QCheckBox" name="Sleep_box">
            <property name="font">
             <font>
              <family>Kalinga</family>
@@ -110,105 +208,68 @@
             </font>
            </property>
            <property name="text">
-            <string>Линия</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
+            <string>Задержка</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="Draw_Polygon">
-           <property name="font">
-            <font>
-             <family>Kalinga</family>
-             <pointsize>9</pointsize>
-            </font>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-           <property name="text">
-            <string>Многоугольник</string>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
            </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="Draw_Pixel">
-           <property name="text">
-            <string>Точка</string>
-           </property>
-          </widget>
+          </spacer>
          </item>
         </layout>
        </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="Print_bth">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Отсекатель</string>
+       </attribute>
+       <widget class="QPushButton" name="Regiont_btn">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>181</width>
+          <height>31</height>
+         </rect>
         </property>
         <property name="font">
          <font>
-          <family>David</family>
-          <pointsize>12</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Заполнить</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="Clear_btn">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>David</family>
-          <pointsize>12</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Очистить</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="Sleep_box">
-        <property name="font">
-         <font>
-          <family>Kalinga</family>
           <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Задержка</string>
+         <string>Выбрать область</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+       <widget class="QPushButton" name="Razor_btn">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>181</width>
+          <height>31</height>
+         </rect>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
         </property>
-       </spacer>
-      </item>
-     </layout>
+        <property name="text">
+         <string>Отсечь</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>

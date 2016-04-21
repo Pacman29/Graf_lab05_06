@@ -272,6 +272,17 @@ void QCanvas::fill_algorithm(QPoint start, QColor color,QColor border, bool time
     this->setPixmap(*pix);
 }
 
+void QCanvas::regular_razor(QPoint pt1, QPoint pt2)
+{
+    if(obj_lines.isEmpty())
+        return;
+    for(size_t i = 0; i<obj_lines.size(); ++i)
+    {
+        line_t line = obj_lines.value(i);
+        razor(line.S,line.F,pt1,pt2);
+    }
+}
+
 bool QCanvas::enabled_pix(QColor color, QPoint p)
 {
     QColor tmp(pix->toImage().pixel(p.x(),p.y()));
@@ -313,6 +324,44 @@ QPoint QCanvas::get_max_x()
             max = tmp.F;
     }
     return max;
+}
+
+int QCanvas::bit_code(QPoint pt1, QPoint pt2, QPoint search)
+{
+    int res = 0;
+    if(search.x() < pt1.x())
+        res +=1;
+    if(search.y() < pt2.y())
+        res +=2;
+    if(search.x() > pt2.x())
+        res +=4;
+    if(search.y() > pt1.y())
+        res +=8;
+    return res;
+}
+
+void QCanvas::razor(QPoint A, QPoint B, QPoint pt1, QPoint pt2)
+{
+    int bit_A = bit_code(pt1,pt2,A);
+    int bit_B = bit_code(pt1,pt2,B);
+
+    if(length(A,B) < 1)
+        return;
+
+    if( (bit_A==0 && bit_B==0) )
+        return;
+    else
+    {
+        Add_lines(A,B);
+        return;
+    }
+    razor(A,(A+B)/2,pt1,pt2);
+    razor((A+B)/2,B,pt1,pt2);
+}
+
+double QCanvas::length(QPoint A, QPoint B)
+{
+    return sqrt((B.x()-A.x())*(B.x()-A.x()) + (B.y()-A.y())*(B.y()-A.y()));
 }
 
 double QCanvas::func(QPoint p1, QPoint p2, size_t y)

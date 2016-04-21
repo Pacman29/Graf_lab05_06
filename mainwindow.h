@@ -33,10 +33,19 @@ private slots:
     void on_Print_bth_clicked();
 
 
+    void on_Regiont_btn_clicked();
+
+    void on_tabWidget_tabBarClicked(int index);
+
+    void on_Razor_btn_clicked();
+
 private:
     Ui::MainWindow *ui;
     bool print_btn_pressed;
     bool first_click;
+    bool region_draw;
+    QPoint pt1;
+    QPoint pt2;
 
     QPoint start_poli;
     void resizeEvent(QResizeEvent *event);

@@ -28,6 +28,19 @@ MainWindow::~MainWindow()
 void MainWindow::Mouse_current_pos()
 {
     ui->statusBar->showMessage(QString("Координаты курсора %1 : %2 ").arg(ui->Canvas->coord_move.x()).arg(ui->Canvas->coord_move.y()));
+    if(ui->tab_2->isVisible() && ui->Canvas->mouse_button_press() && region_draw)
+    {
+        ui->Canvas->Clear_canvas();
+        QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
+        QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
+        ui->Canvas->draw_all_save_obj();
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2);
+        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move);
+        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move);
+
+        return;
+    }
     if(!print_btn_pressed)
     {
         if(ui->Draw_Lines->isChecked() && ui->Canvas->mouse_button_press())
@@ -58,6 +71,18 @@ void MainWindow::Mouse_current_pos()
 
 void MainWindow::Mouse_click_pos()
 {
+    if(ui->tab_2->isVisible() && region_draw)
+    {
+        QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
+        QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
+        ui->Canvas->draw_all_save_obj();
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2);
+        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move);
+        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move);
+        this->pt1 = ui->Canvas->coord_click;
+        return;
+    }
     if(!print_btn_pressed)
     {
         ui->Canvas->coord_move_old = ui->Canvas->coord_click;
@@ -107,6 +132,22 @@ void MainWindow::Mouse_left()
 
 void MainWindow::Mouse_unpress()
 {
+    if(ui->tab_2->isVisible() && region_draw)
+    {
+        ui->Canvas->Clear_canvas();
+        QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
+        QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
+        ui->Canvas->draw_all_save_obj();
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2);
+        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move);
+        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move);
+        ui->Regiont_btn->setEnabled(region_draw);
+        ui->Razor_btn->setEnabled(region_draw);
+        this->pt2 = ui->Canvas->coord_move;
+        region_draw = false;
+        return;
+    }
     if(!print_btn_pressed)
     {
         if(ui->Draw_Lines->isChecked())
@@ -118,6 +159,7 @@ void MainWindow::Mouse_unpress()
         {
 
         }
+        return;
     }
 }
 
@@ -171,4 +213,43 @@ void MainWindow::on_Print_bth_clicked()
     {
         ui->Canvas->xor_with_line(Qt::red,Qt::white,ui->Sleep_box->isChecked());
     }
+}
+
+
+
+void MainWindow::on_Regiont_btn_clicked()
+{
+    ui->Regiont_btn->setEnabled(region_draw);
+    ui->Razor_btn->setEnabled(region_draw);
+    region_draw = true;
+}
+
+void MainWindow::on_tabWidget_tabBarClicked(int index)
+{
+    switch (index) {
+    case 0:
+    {
+        ui->Canvas->Clear_canvas();
+        ui->Canvas->delete_all_save_obj();
+        break;
+    }
+    case 1:
+    {
+        ui->Canvas->Clear_canvas();
+        ui->Canvas->delete_all_save_obj();
+        pt1.setX(0);
+        pt1.setY(0);
+        pt2.setX(ui->Canvas->width());
+        pt2.setY(ui->Canvas->height());
+        ui->Draw_Lines->setChecked(true);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void MainWindow::on_Razor_btn_clicked()
+{
+    ui->Canvas->regular_razor(pt1,pt2);
 }
