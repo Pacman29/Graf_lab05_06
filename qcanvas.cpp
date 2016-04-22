@@ -62,10 +62,10 @@ void QCanvas::Clear_canvas()
     this->setPixmap(*pix);
 }
 
-void QCanvas::Add_lines(QPoint S, QPoint F)
+void QCanvas::Add_lines(QPoint S, QPoint F, QColor color)
 {
     QPainter paint(pix);
-    paint.setPen(QPen(QBrush(Qt::black),2));
+    paint.setPen(QPen(QBrush(color),2));
     paint.drawLine(S,F);
     this->setPixmap(*pix);
 }
@@ -81,7 +81,7 @@ void QCanvas::save_obj_line(QPoint S, QPoint F)
 void QCanvas::draw_all_save_obj()
 {
     for(size_t i = 0; i<obj_lines.size();++i)
-        Add_lines(obj_lines.value(i).S,obj_lines.value(i).F);
+        Add_lines(obj_lines.value(i).S,obj_lines.value(i).F,Qt::black);
 }
 
 void QCanvas::delete_all_save_obj()
@@ -141,7 +141,7 @@ void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
 
             pix->convertFromImage(im);
             for(size_t j = 0; j<i+1; ++j)
-                Add_lines(obj_lines.value(j).S,obj_lines.value(j).F);
+                Add_lines(obj_lines.value(j).S,obj_lines.value(j).F,Qt::black);
 
             this->setPixmap(*pix);
         }
@@ -359,7 +359,7 @@ void QCanvas::razor(QPoint A, QPoint B, QPoint pt1, QPoint pt2, bool time_sleep)
 
     if( (bit_A==0 && bit_B==0) )
     {
-        Add_lines(A,B);
+        Add_lines(A,B,Qt::blue);
         if(time_sleep)
         {
             this->setPixmap(*pix);

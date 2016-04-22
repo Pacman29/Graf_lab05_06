@@ -34,7 +34,7 @@ public:
     QPoint coord_click_old;
 
     void Clear_canvas();
-    void Add_lines(QPoint S,QPoint F);
+    void Add_lines(QPoint S,QPoint F, QColor color);
     void save_obj_line(QPoint S,QPoint F);
     void draw_all_save_obj();
     void delete_all_save_obj();

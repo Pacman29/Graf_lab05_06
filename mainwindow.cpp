@@ -35,10 +35,10 @@ void MainWindow::Mouse_current_pos()
         QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
         QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
         ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1);
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2);
-        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move);
-        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
+        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
+        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
 
         return;
     }
@@ -48,7 +48,7 @@ void MainWindow::Mouse_current_pos()
         {
             ui->Canvas->Clear_canvas();
             ui->Canvas->draw_all_save_obj();
-            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move,Qt::black);
             if(ui->tab_2->isVisible())
             {
                 pt1.setX(0);
@@ -63,14 +63,14 @@ void MainWindow::Mouse_current_pos()
     {
         ui->Canvas->Clear_canvas();
         ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move,Qt::black);
     }
 
     if(ui->Draw_Pixel->isChecked() && ui->Canvas->mouse_button_press())
     {
         ui->Canvas->Clear_canvas();
         ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_move_old,ui->Canvas->coord_move);
+        ui->Canvas->Add_lines(ui->Canvas->coord_move_old,ui->Canvas->coord_move,Qt::black);
         ui->Canvas->save_obj_line(ui->Canvas->coord_move_old,ui->Canvas->coord_move);
         ui->Canvas->coord_move_old = ui->Canvas->coord_move;
     }
@@ -84,10 +84,10 @@ void MainWindow::Mouse_click_pos()
         QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
         QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
         ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1);
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2);
-        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move);
-        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
+        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
+        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
         this->pt1 = ui->Canvas->coord_click;
         return;
     }
@@ -98,7 +98,7 @@ void MainWindow::Mouse_click_pos()
         {
             ui->Canvas->Clear_canvas();
             ui->Canvas->draw_all_save_obj();
-            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move,Qt::black);
         }
         else if(!ui->Draw_Pixel->isChecked())
             if(!first_click)
@@ -114,14 +114,14 @@ void MainWindow::Mouse_click_pos()
                     first_click = false;
                     ui->Canvas->Clear_canvas();
                     ui->Canvas->draw_all_save_obj();
-                    ui->Canvas->Add_lines(ui->Canvas->coord_click_old,start_poli);
+                    ui->Canvas->Add_lines(ui->Canvas->coord_click_old,start_poli,Qt::black);
                     ui->Canvas->save_obj_line(ui->Canvas->coord_click_old,start_poli);
                 }
                 else
                 {
                     ui->Canvas->Clear_canvas();
                     ui->Canvas->draw_all_save_obj();
-                    ui->Canvas->Add_lines(ui->Canvas->coord_click_old,ui->Canvas->coord_move);
+                    ui->Canvas->Add_lines(ui->Canvas->coord_click_old,ui->Canvas->coord_move,Qt::black);
                     ui->Canvas->save_obj_line(ui->Canvas->coord_click_old,ui->Canvas->coord_move);
                 }
             }
@@ -146,10 +146,10 @@ void MainWindow::Mouse_unpress()
         QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
         QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
         ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1);
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2);
-        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move);
-        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
+        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
+        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
+        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
         ui->Regiont_btn->setEnabled(region_draw);
         ui->Razor_btn->setEnabled(region_draw);
         this->pt2 = ui->Canvas->coord_move;
@@ -160,7 +160,7 @@ void MainWindow::Mouse_unpress()
     {
         if(ui->Draw_Lines->isChecked())
         {
-            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move,Qt::black);
             ui->Canvas->save_obj_line(ui->Canvas->coord_click,ui->Canvas->coord_move);
         }
         else
@@ -259,10 +259,9 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
 
 void MainWindow::on_Razor_btn_clicked()
 {
-    ui->Canvas->Clear_canvas();
     ui->Canvas->regular_razor(pt1,pt2,ui->Sleep_box->isChecked());
-    ui->Canvas->Add_lines(pt1,QPoint(pt2.x(),pt1.y()));
-    ui->Canvas->Add_lines(pt1,QPoint(pt1.x(),pt2.y()));
-    ui->Canvas->Add_lines(QPoint(pt1.x(),pt2.y()),pt2);
-    ui->Canvas->Add_lines(QPoint(pt2.x(),pt1.y()),pt2);
+    ui->Canvas->Add_lines(pt1,QPoint(pt2.x(),pt1.y()),Qt::green);
+    ui->Canvas->Add_lines(pt1,QPoint(pt1.x(),pt2.y()),Qt::green);
+    ui->Canvas->Add_lines(QPoint(pt1.x(),pt2.y()),pt2,Qt::green);
+    ui->Canvas->Add_lines(QPoint(pt2.x(),pt1.y()),pt2,Qt::green);
 }
