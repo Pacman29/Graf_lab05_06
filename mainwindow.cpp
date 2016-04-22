@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     print_btn_pressed = false;
     first_click = false;
+    region_draw = false;
 }
 
 MainWindow::~MainWindow()
@@ -48,6 +49,13 @@ void MainWindow::Mouse_current_pos()
             ui->Canvas->Clear_canvas();
             ui->Canvas->draw_all_save_obj();
             ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move);
+            if(ui->tab_2->isVisible())
+            {
+                pt1.setX(0);
+                pt1.setY(0);
+                pt2.setX(ui->Canvas->width());
+                pt2.setY(ui->Canvas->height());
+            }
         }
     }
 
@@ -251,5 +259,10 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
 
 void MainWindow::on_Razor_btn_clicked()
 {
-    ui->Canvas->regular_razor(pt1,pt2);
+    ui->Canvas->Clear_canvas();
+    ui->Canvas->regular_razor(pt1,pt2,ui->Sleep_box->isChecked());
+    ui->Canvas->Add_lines(pt1,QPoint(pt2.x(),pt1.y()));
+    ui->Canvas->Add_lines(pt1,QPoint(pt1.x(),pt2.y()));
+    ui->Canvas->Add_lines(QPoint(pt1.x(),pt2.y()),pt2);
+    ui->Canvas->Add_lines(QPoint(pt2.x(),pt1.y()),pt2);
 }

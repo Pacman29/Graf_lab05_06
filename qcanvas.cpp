@@ -140,6 +140,9 @@ void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
             }
 
             pix->convertFromImage(im);
+            for(size_t j = 0; j<i+1; ++j)
+                Add_lines(obj_lines.value(j).S,obj_lines.value(j).F);
+
             this->setPixmap(*pix);
         }
         if(time_sleep)
@@ -148,6 +151,7 @@ void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
         }
+
     }
     draw_all_save_obj();
 }
@@ -272,15 +276,17 @@ void QCanvas::fill_algorithm(QPoint start, QColor color,QColor border, bool time
     this->setPixmap(*pix);
 }
 
-void QCanvas::regular_razor(QPoint pt1, QPoint pt2)
+void QCanvas::regular_razor(QPoint pt1, QPoint pt2,bool time_sleep)
 {
     if(obj_lines.isEmpty())
         return;
     for(size_t i = 0; i<obj_lines.size(); ++i)
     {
         line_t line = obj_lines.value(i);
-        razor(line.S,line.F,pt1,pt2);
+        razor(line.S,line.F,pt1,pt2,time_sleep);
     }
+    this->setPixmap(*pix);
+    delete_all_save_obj();
 }
 
 bool QCanvas::enabled_pix(QColor color, QPoint p)
@@ -331,36 +337,49 @@ int QCanvas::bit_code(QPoint pt1, QPoint pt2, QPoint search)
     int res = 0;
     if(search.x() < pt1.x())
         res +=1;
-    if(search.y() < pt2.y())
+    if(search.y() > pt2.y())
         res +=2;
     if(search.x() > pt2.x())
         res +=4;
-    if(search.y() > pt1.y())
+    if(search.y() < pt1.y())
         res +=8;
     return res;
 }
 
-void QCanvas::razor(QPoint A, QPoint B, QPoint pt1, QPoint pt2)
+void QCanvas::razor(QPoint A, QPoint B, QPoint pt1, QPoint pt2, bool time_sleep)
 {
+
+    if(length(A,B) < sqrt(2))
+        return;
     int bit_A = bit_code(pt1,pt2,A);
     int bit_B = bit_code(pt1,pt2,B);
 
-    if(length(A,B) < 1)
+    if(bit_A == bit_B && bit_A != 0 && bit_B != 0 )
         return;
 
     if( (bit_A==0 && bit_B==0) )
-        return;
-    else
     {
         Add_lines(A,B);
+        if(time_sleep)
+        {
+            this->setPixmap(*pix);
+            QTime dieTime= QTime::currentTime().addMSecs(100);
+            while (QTime::currentTime() < dieTime)
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
         return;
     }
-    razor(A,(A+B)/2,pt1,pt2);
-    razor((A+B)/2,B,pt1,pt2);
+
+    QPoint half((A.x()+B.x())/2,(A.y()+B.y())/2);
+
+    razor(A,half,pt1,pt2,time_sleep);
+    razor(half,B,pt1,pt2,time_sleep);
 }
 
 double QCanvas::length(QPoint A, QPoint B)
 {
+    if (!(B.x()-A.x())  &&  !(B.y()-A.y()))
+        return 0;
     return sqrt((B.x()-A.x())*(B.x()-A.x()) + (B.y()-A.y())*(B.y()-A.y()));
 }
 
