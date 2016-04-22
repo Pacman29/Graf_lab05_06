@@ -175,8 +175,8 @@ void MainWindow::Mouse_unpress()
 void MainWindow::on_Clear_btn_clicked()
 {
     first_click = false;
-    ui->Canvas->delete_all_save_obj();
     ui->Canvas->Clear_canvas();
+    ui->Canvas->draw_all_save_obj();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -238,18 +238,17 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
     case 0:
     {
         ui->Canvas->Clear_canvas();
-        ui->Canvas->delete_all_save_obj();
+        ui->Canvas->draw_all_save_obj();
         break;
     }
     case 1:
     {
         ui->Canvas->Clear_canvas();
-        ui->Canvas->delete_all_save_obj();
+        ui->Canvas->draw_all_save_obj();
         pt1.setX(0);
         pt1.setY(0);
         pt2.setX(ui->Canvas->width());
         pt2.setY(ui->Canvas->height());
-        ui->Draw_Lines->setChecked(true);
         break;
     }
     default:

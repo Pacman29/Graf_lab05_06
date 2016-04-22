@@ -39,9 +39,9 @@ public:
     void draw_all_save_obj();
     void delete_all_save_obj();
 
-    void xor_with_line(QColor color, QColor background, bool time_sleep);
-    void fill_algorithm(QPoint start, QColor color, QColor border, bool time_sleep);
-    void regular_razor(QPoint pt1, QPoint pt2,bool time_sleep);
+    void xor_with_line(QColor color, QColor background, bool time_sleep = false);
+    void fill_algorithm(QPoint start, QColor color, QColor border, bool time_sleep = false);
+    void regular_razor(QPoint pt1, QPoint pt2,bool time_sleep = false );
     bool enabled_pix(QColor color, QPoint p);
 
     bool mouse_button_press();

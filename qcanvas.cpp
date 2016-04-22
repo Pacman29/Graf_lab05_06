@@ -286,7 +286,6 @@ void QCanvas::regular_razor(QPoint pt1, QPoint pt2,bool time_sleep)
         razor(line.S,line.F,pt1,pt2,time_sleep);
     }
     this->setPixmap(*pix);
-    delete_all_save_obj();
 }
 
 bool QCanvas::enabled_pix(QColor color, QPoint p)
