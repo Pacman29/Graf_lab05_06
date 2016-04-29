@@ -62,7 +62,7 @@ void QCanvas::Clear_canvas()
     this->setPixmap(*pix);
 }
 
-void QCanvas::Add_lines(QPoint S, QPoint F, QColor color)
+void QCanvas::Add_lines(QPointF S, QPointF F, QColor color)
 {
     QPainter paint(pix);
     paint.setPen(QPen(QBrush(color),2));
@@ -70,7 +70,15 @@ void QCanvas::Add_lines(QPoint S, QPoint F, QColor color)
     this->setPixmap(*pix);
 }
 
-void QCanvas::save_obj_line(QPoint S, QPoint F)
+void QCanvas::save_obj_polihendron(QPointF S, QPointF F)
+{
+    line_t line;
+    line.S = S;
+    line.F = F;
+    obj_Polyhedrons.push_back(line);
+}
+
+void QCanvas::save_obj_line(QPointF S, QPointF F)
 {
     line_t line;
     line.S = S;
@@ -84,9 +92,39 @@ void QCanvas::draw_all_save_obj()
         Add_lines(obj_lines.value(i).S,obj_lines.value(i).F,Qt::black);
 }
 
+void QCanvas::draw_all_save_polihendron()
+{
+    for(size_t i = 0; i<obj_Polyhedrons.size();++i)
+        Add_lines(obj_Polyhedrons.value(i).S,obj_Polyhedrons.value(i).F,Qt::green);
+}
+
 void QCanvas::delete_all_save_obj()
 {
     obj_lines.clear();
+}
+
+void QCanvas::delete_Polyhedrons()
+{
+    obj_Polyhedrons.clear();
+}
+
+bool QCanvas::isClosed()
+{
+    return  (obj_Polyhedrons.size() == 0) ?
+                (false) :  (obj_Polyhedrons.value(0).S == obj_Polyhedrons.value(obj_Polyhedrons.size()-1).F);
+}
+
+bool QCanvas::isConvex()
+{
+    ssize_t z = 0;
+    for(size_t i = 0; i < obj_Polyhedrons.size() ; ++i)
+    {
+        line_t A = obj_Polyhedrons.value(i);
+        line_t B = obj_Polyhedrons.value((i+1) % obj_Polyhedrons.size());
+        z+= (((A.F.x() - A.S.x())*(B.F.y() - B.S.y()) - (A.F.y() - A.S.y())*(B.F.x() - B.S.x())) < 0) ? (-1):(1);
+    }
+
+    return fabs(z) == obj_Polyhedrons.size();
 }
 
 void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
@@ -105,8 +143,8 @@ void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
     Clear_canvas();
     for(size_t i = 0; i<obj_lines.size(); ++i)
     {
-        QPoint S = obj_lines.value(i).S;
-        QPoint F = obj_lines.value(i).F;
+        QPointF S = obj_lines.value(i).S;
+        QPointF F = obj_lines.value(i).F;
 
         if(S.y() > F.y())
             std::swap(S,F);
@@ -117,7 +155,7 @@ void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
             size_t y = j;
             while(x < line_x)
             {
-                if(enabled_pix(color,QPoint(x,y)))
+                if(enabled_pix(color,QPointF(x,y)))
                     im.setPixel(x,y,background.rgb());
                 else
                     im.setPixel(x,y,color.rgb());
@@ -125,14 +163,14 @@ void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
             }
             if(x == line_x)
             {
-                if(enabled_pix(color,QPoint(x,y)))
+                if(enabled_pix(color,QPointF(x,y)))
                     im.setPixel(x,y,background.rgb());
                 else
                     im.setPixel(x,y,color.rgb());
             }
             while (x > line_x)
             {
-                if(enabled_pix(color,QPoint(x,y)))
+                if(enabled_pix(color,QPointF(x,y)))
                     im.setPixel(x,y,background.rgb());
                 else
                     im.setPixel(x,y,color.rgb());
@@ -156,18 +194,18 @@ void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
     draw_all_save_obj();
 }
 
-void QCanvas::fill_algorithm(QPoint start, QColor color,QColor border, bool time_sleep)
+void QCanvas::fill_algorithm(QPointF start, QColor color,QColor border, bool time_sleep)
 {
-    QVector<QPoint> stack;
+    QVector<QPointF> stack;
     QImage im(pix->toImage());
 
-    im.setPixel(start,color.rgb());
+    im.setPixel(start.toPoint(),color.rgb());
     stack.push_back(start);
 
 
     while(!stack.isEmpty())
     {
-        QPoint tmp_pix = stack.takeLast();
+        QPoint tmp_pix = stack.takeLast().toPoint();
         im.setPixel(tmp_pix,color.rgb());
 
         size_t tmp_x = tmp_pix.x();
@@ -209,7 +247,7 @@ void QCanvas::fill_algorithm(QPoint start, QColor color,QColor border, bool time
                     im.pixel(tmp_pix) != color.rgb())
                     stack.push_back(tmp_pix);
                 else
-                    stack.push_back(QPoint(tmp_pix.x()-1,tmp_pix.y()));
+                    stack.push_back(QPointF(tmp_pix.x()-1,tmp_pix.y()));
                 flag = false;
             }
             size_t x_st = tmp_pix.x();
@@ -250,7 +288,7 @@ void QCanvas::fill_algorithm(QPoint start, QColor color,QColor border, bool time
                     im.pixel(tmp_pix) != color.rgb())
                     stack.push_back(tmp_pix);
                 else
-                    stack.push_back(QPoint(tmp_pix.x()-1,tmp_pix.y()));
+                    stack.push_back(QPointF(tmp_pix.x()-1,tmp_pix.y()));
                 flag = false;
             }
             size_t x_st = tmp_pix.x();
@@ -276,7 +314,7 @@ void QCanvas::fill_algorithm(QPoint start, QColor color,QColor border, bool time
     this->setPixmap(*pix);
 }
 
-void QCanvas::regular_razor(QPoint pt1, QPoint pt2,bool time_sleep)
+void QCanvas::regular_razor(QPointF pt1, QPointF pt2,bool time_sleep)
 {
     if(obj_lines.isEmpty())
         return;
@@ -288,7 +326,18 @@ void QCanvas::regular_razor(QPoint pt1, QPoint pt2,bool time_sleep)
     this->setPixmap(*pix);
 }
 
-bool QCanvas::enabled_pix(QColor color, QPoint p)
+bool QCanvas::razor_Cyrus_Beck(bool time_sleep)
+{
+    if(!isConvex())
+        return false;
+
+    for(size_t i = 0; i< obj_lines.size(); ++i)
+        razor_CB(obj_lines.value(i).S,obj_lines.value(i).F,time_sleep);
+
+    return true;
+}
+
+bool QCanvas::enabled_pix(QColor color, QPointF p)
 {
     QColor tmp(pix->toImage().pixel(p.x(),p.y()));
     if (tmp == color)
@@ -297,12 +346,12 @@ bool QCanvas::enabled_pix(QColor color, QPoint p)
         return false;
 }
 
-QPoint QCanvas::get_min_x()
+QPointF QCanvas::get_min_x()
 {
     if(obj_lines.isEmpty())
-        return QPoint(SIZE_MAX,SIZE_MAX);
+        return QPointF(SIZE_MAX,SIZE_MAX);
     line_t tmp;
-    QPoint min = (obj_lines.value(0).S.x() < obj_lines.value(0).F.x()) ? (obj_lines.value(0).S):(obj_lines.value(0).F);
+    QPointF min = (obj_lines.value(0).S.x() < obj_lines.value(0).F.x()) ? (obj_lines.value(0).S):(obj_lines.value(0).F);
     for(size_t i = 0; i<obj_lines.size(); ++i)
     {
         tmp = obj_lines.value(i);
@@ -314,12 +363,12 @@ QPoint QCanvas::get_min_x()
     return min;
 }
 
-QPoint QCanvas::get_max_x()
+QPointF QCanvas::get_max_x()
 {
     if(obj_lines.isEmpty())
-        return QPoint(SIZE_MAX,SIZE_MAX);
+        return QPointF(SIZE_MAX,SIZE_MAX);
     line_t tmp;
-    QPoint max = (obj_lines.value(0).S.x() < obj_lines.value(0).F.x()) ? (obj_lines.value(0).S):(obj_lines.value(0).F);
+    QPointF max = (obj_lines.value(0).S.x() < obj_lines.value(0).F.x()) ? (obj_lines.value(0).S):(obj_lines.value(0).F);
     for(size_t i = 0; i<obj_lines.size(); ++i)
     {
         tmp = obj_lines.value(i);
@@ -331,7 +380,7 @@ QPoint QCanvas::get_max_x()
     return max;
 }
 
-int QCanvas::bit_code(QPoint pt1, QPoint pt2, QPoint search)
+int QCanvas::bit_code(QPointF pt1, QPointF pt2, QPointF search)
 {
     int res = 0;
     if(search.x() < pt1.x())
@@ -345,7 +394,7 @@ int QCanvas::bit_code(QPoint pt1, QPoint pt2, QPoint search)
     return res;
 }
 
-void QCanvas::razor(QPoint A, QPoint B, QPoint pt1, QPoint pt2, bool time_sleep)
+void QCanvas::razor(QPointF A, QPointF B, QPointF pt1, QPointF pt2, bool time_sleep)
 {
 
     if(length(A,B) < sqrt(2))
@@ -369,26 +418,112 @@ void QCanvas::razor(QPoint A, QPoint B, QPoint pt1, QPoint pt2, bool time_sleep)
         return;
     }
 
-    QPoint half((A.x()+B.x())/2,(A.y()+B.y())/2);
+    QPointF half((A.x()+B.x())/2,(A.y()+B.y())/2);
 
     razor(A,half,pt1,pt2,time_sleep);
     razor(half,B,pt1,pt2,time_sleep);
 }
 
-double QCanvas::length(QPoint A, QPoint B)
+void QCanvas::razor_CB(QPointF A, QPointF B, bool time_sleep)
+{
+    double t0 = 0;
+    double t1 = 1;
+
+    size_t size = obj_Polyhedrons.size();
+
+    QPoint vec1(obj_Polyhedrons.value(0).F.x() - obj_Polyhedrons.value(0).S.x(),obj_Polyhedrons.value(0).F.y() - obj_Polyhedrons.value(0).S.y());
+    QPoint vec2(obj_Polyhedrons.value(1).F.x() - obj_Polyhedrons.value(0).S.x(),obj_Polyhedrons.value(1).F.y() - obj_Polyhedrons.value(0).S.y());
+
+    ssize_t koef = ((vec1.x()*vec2.y() - vec1.y()*vec2.x()) > 0) ? (1):(-1);
+    QPoint D (B.x() - A.x(),B.y() - A.y());
+
+    bool flag = 1;
+
+    for(size_t i = 0; i<size; ++i)
+    {
+        double t = 0;
+
+        QPoint w (A.x() - obj_Polyhedrons.value(i).F.x(), A.y() - obj_Polyhedrons.value(i).F.y());
+        QPoint N (koef*(obj_Polyhedrons.value(i).S.y() - obj_Polyhedrons.value(i).F.y()),koef*(obj_Polyhedrons.value(i).F.x() - obj_Polyhedrons.value(i).S.x()));
+
+
+        double Q = scalar(w,N);
+        double P = scalar(D,N);
+
+//        double tmp1 = 0;
+//        double tmp2 = 0;
+
+//        if ( (tmp1 = fabs( fabs(N.x()) -  fabs(N_D.x())) )<0.5 &&  (tmp2 = fabs(fabs(N.y()) - fabs(N_D.y())) )<0.5)
+//            P = 0;
+
+//        if(Q < 0)
+//        {
+//            return;
+//        }
+
+        if(P == 0)
+        {
+            if(Q<0)
+            {
+                flag = 0;
+                break;
+            }
+        }
+        else
+        {
+            t = - Q/P;
+
+                if(P>0)
+                {
+                    if(t>1)
+                    {
+                        flag = 0;
+                        break;
+                    }
+                    else
+                        if(t>t0)
+                            t0 = t;
+                }
+                else
+                {
+                    if(t<0)
+                    {
+                        flag = 0;
+                        break;
+                    }
+                    else
+                        if(t<t1)
+                            t1 = t;
+                }
+
+        }
+
+    }
+
+    if (t0<=t1 && flag)
+        Add_lines(QPointF( A.x()+(B.x()-A.x())*t0 , A.y()+(B.y()-A.y())*t0),
+              QPointF( A.x()+(B.x()-A.x())*t1 , A.y()+(B.y()-A.y())*t1),
+              Qt::blue);
+}
+
+double QCanvas::length(QPointF A, QPointF B)
 {
     if (!(B.x()-A.x())  &&  !(B.y()-A.y()))
         return 0;
     return sqrt((B.x()-A.x())*(B.x()-A.x()) + (B.y()-A.y())*(B.y()-A.y()));
 }
 
-double QCanvas::func(QPoint p1, QPoint p2, size_t y)
+double QCanvas::func(QPointF p1, QPointF p2, size_t y)
 {
     if (p1.y() == p2.y())
         return SIZE_MAX;
     return  (y*(p2.x() - p1.x())+ p1.x()*p2.y()-p1.y()*p2.x())/(double)(p2.y()-p1.y());
 }
 
+double QCanvas::scalar(QPoint A, QPoint B)
+{
+    return A.x()*B.x() + A.y()*B.y();
+}
 bool QCanvas::mouse_button_press()
 {
     return pressed;

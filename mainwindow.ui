@@ -30,7 +30,7 @@
        </size>
       </property>
       <property name="cursor">
-       <cursorShape>CrossCursor</cursorShape>
+       <cursorShape>ArrowCursor</cursorShape>
       </property>
       <property name="mouseTracking">
        <bool>true</bool>
@@ -133,6 +133,50 @@
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QGroupBox" name="Razor_box">
+              <property name="font">
+               <font>
+                <family>Kalinga</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="title">
+               <string>Тип отсекателя:</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <item>
+                <widget class="QRadioButton" name="Rectangle_razor_rbt">
+                 <property name="font">
+                  <font>
+                   <family>Kalinga</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Прямоугольный</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="Polyhedron_razor_rbt">
+                 <property name="font">
+                  <font>
+                   <family>Kalinga</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Выпуклый многогранник</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
             <item>
              <widget class="QPushButton" name="Regiont_btn">
               <property name="minimumSize">

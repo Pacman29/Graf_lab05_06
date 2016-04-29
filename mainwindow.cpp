@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     print_btn_pressed = false;
     first_click = false;
     region_draw = false;
+    draw_line = false;
 }
 
 MainWindow::~MainWindow()
@@ -29,18 +30,29 @@ MainWindow::~MainWindow()
 void MainWindow::Mouse_current_pos()
 {
     ui->statusBar->showMessage(QString("Координаты курсора %1 : %2 ").arg(ui->Canvas->coord_move.x()).arg(ui->Canvas->coord_move.y()));
-    if(ui->tab_2->isVisible() && ui->Canvas->mouse_button_press() && region_draw)
+    if(ui->tab_2->isVisible() && region_draw)
     {
-        ui->Canvas->Clear_canvas();
-        QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
-        QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
-        ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
-        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
-        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
+        if(ui->Rectangle_razor_rbt->isChecked() && ui->Canvas->mouse_button_press())
+        {
+            ui->Canvas->Clear_canvas();
+            QPointF pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
+            QPointF pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
+            ui->Canvas->draw_all_save_obj();
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
+            ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
+            ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
 
-        return;
+            return;
+        }
+        if(ui->Polyhedron_razor_rbt->isChecked() && first_click && !ui->Regiont_btn->isEnabled())
+        {
+            ui->Canvas->Clear_canvas();
+            ui->Canvas->draw_all_save_obj();
+            ui->Canvas->draw_all_save_polihendron();
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move,Qt::green);
+            return;
+        }
     }
     if(!print_btn_pressed)
     {
@@ -81,15 +93,55 @@ void MainWindow::Mouse_click_pos()
 {
     if(ui->tab_2->isVisible() && region_draw)
     {
-        QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
-        QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
-        ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
-        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
-        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
-        this->pt1 = ui->Canvas->coord_click;
-        return;
+        if(ui->Rectangle_razor_rbt->isChecked())
+        {
+            QPointF pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
+            QPointF pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
+            ui->Canvas->draw_all_save_obj();
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
+            ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
+            ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
+            this->pt1 = ui->Canvas->coord_click;
+            return;
+        }
+        if(ui->Polyhedron_razor_rbt->isChecked() && !ui->Regiont_btn->isEnabled())
+        {
+            if(!first_click)
+            {
+                first_click = true;
+                start_poli = ui->Canvas->coord_click;
+                ui->Canvas->coord_click_old = ui->Canvas->coord_click;
+            }
+            else
+            {
+                if (near(start_poli,ui->Canvas->coord_move))
+                {
+                    first_click = false;
+                    ui->Canvas->Clear_canvas();
+                    ui->Canvas->draw_all_save_obj();
+                    ui->Canvas->draw_all_save_polihendron();
+                    ui->Canvas->Add_lines(ui->Canvas->coord_click_old,start_poli,Qt::green);
+                    ui->Canvas->save_obj_polihendron(ui->Canvas->coord_click_old,start_poli);
+                    ui->Regiont_btn->setEnabled(region_draw);
+                    ui->Razor_btn->setEnabled(region_draw);
+                    ui->Razor_box->setEnabled(region_draw);
+                    ui->Draw_Gbox->setEnabled(true);
+                    ui->tab->setEnabled(true);
+                    region_draw = false;
+
+                }
+                else
+                {
+                    ui->Canvas->Clear_canvas();
+                    ui->Canvas->draw_all_save_obj();
+                    ui->Canvas->draw_all_save_polihendron();
+                    ui->Canvas->Add_lines(ui->Canvas->coord_click_old,ui->Canvas->coord_move,Qt::green);
+                    ui->Canvas->save_obj_polihendron(ui->Canvas->coord_click_old,ui->Canvas->coord_move);
+                }
+            }
+            return;
+        }
     }
     if(!print_btn_pressed)
     {
@@ -99,6 +151,8 @@ void MainWindow::Mouse_click_pos()
             ui->Canvas->Clear_canvas();
             ui->Canvas->draw_all_save_obj();
             ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move,Qt::black);
+            draw_line = true;
+
         }
         else if(!ui->Draw_Pixel->isChecked())
             if(!first_click)
@@ -142,26 +196,39 @@ void MainWindow::Mouse_unpress()
 {
     if(ui->tab_2->isVisible() && region_draw)
     {
-        ui->Canvas->Clear_canvas();
-        QPoint pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
-        QPoint pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
-        ui->Canvas->draw_all_save_obj();
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
-        ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
-        ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
-        ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
-        ui->Regiont_btn->setEnabled(region_draw);
-        ui->Razor_btn->setEnabled(region_draw);
-        this->pt2 = ui->Canvas->coord_move;
-        region_draw = false;
-        return;
+        if(ui->Rectangle_razor_rbt->isChecked())
+        {
+            ui->Canvas->Clear_canvas();
+            QPointF pt1 (ui->Canvas->coord_move.x(),ui->Canvas->coord_click.y());
+            QPointF pt2 (ui->Canvas->coord_click.x(),ui->Canvas->coord_move.y());
+            ui->Canvas->draw_all_save_obj();
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,pt1,Qt::green);
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,pt2,Qt::green);
+            ui->Canvas->Add_lines(pt1,ui->Canvas->coord_move,Qt::green);
+            ui->Canvas->Add_lines(pt2,ui->Canvas->coord_move,Qt::green);
+            ui->Regiont_btn->setEnabled(region_draw);
+            ui->Razor_btn->setEnabled(region_draw);
+            ui->Razor_box->setEnabled(region_draw);
+            this->pt2 = ui->Canvas->coord_move;
+            region_draw = false;
+            return;
+        }
+        if(ui->Polyhedron_razor_rbt->isChecked() && !ui->Regiont_btn->isEnabled() && region_draw)
+        {
+            ui->Canvas->Clear_canvas();
+            ui->Canvas->draw_all_save_obj();
+            ui->Canvas->draw_all_save_polihendron();
+            ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move,Qt::green);
+            return;
+        }
     }
     if(!print_btn_pressed)
     {
-        if(ui->Draw_Lines->isChecked())
+        if(ui->Draw_Lines->isChecked() && draw_line )
         {
             ui->Canvas->Add_lines(ui->Canvas->coord_click,ui->Canvas->coord_move,Qt::black);
             ui->Canvas->save_obj_line(ui->Canvas->coord_click,ui->Canvas->coord_move);
+            draw_line = false;
         }
         else
         {
@@ -176,7 +243,7 @@ void MainWindow::on_Clear_btn_clicked()
 {
     first_click = false;
     ui->Canvas->Clear_canvas();
-    ui->Canvas->draw_all_save_obj();
+    ui->Canvas->delete_all_save_obj();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -185,7 +252,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     ui->Canvas->draw_all_save_obj();
 }
 
-bool MainWindow::near(QPoint old, QPoint now)
+bool MainWindow::near(QPointF old, QPointF now)
 {
 
     if( old.x() - 3 <=  now.x() &&
@@ -227,9 +294,27 @@ void MainWindow::on_Print_bth_clicked()
 
 void MainWindow::on_Regiont_btn_clicked()
 {
-    ui->Regiont_btn->setEnabled(region_draw);
-    ui->Razor_btn->setEnabled(region_draw);
-    region_draw = true;
+    if(ui->Rectangle_razor_rbt->isChecked())
+    {
+        ui->Razor_box->setEnabled(region_draw);
+        ui->Regiont_btn->setEnabled(region_draw);
+        ui->Razor_btn->setEnabled(region_draw);
+        region_draw = true;
+        return;
+    }
+    if(ui->Polyhedron_razor_rbt->isChecked())
+    {
+        ui->Canvas->delete_Polyhedrons();
+        ui->Canvas->Clear_canvas();
+        ui->Canvas->draw_all_save_obj();
+        region_draw = true;
+        ui->Razor_box->setEnabled(false);
+        ui->Razor_btn->setEnabled(false);
+        ui->Regiont_btn->setEnabled(false);
+        ui->Draw_Gbox->setEnabled(false);
+        ui->tab->setEnabled(false);
+        return;
+    }
 }
 
 void MainWindow::on_tabWidget_tabBarClicked(int index)
@@ -258,9 +343,30 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
 
 void MainWindow::on_Razor_btn_clicked()
 {
-    ui->Canvas->regular_razor(pt1,pt2,ui->Sleep_box->isChecked());
-    ui->Canvas->Add_lines(pt1,QPoint(pt2.x(),pt1.y()),Qt::green);
-    ui->Canvas->Add_lines(pt1,QPoint(pt1.x(),pt2.y()),Qt::green);
-    ui->Canvas->Add_lines(QPoint(pt1.x(),pt2.y()),pt2,Qt::green);
-    ui->Canvas->Add_lines(QPoint(pt2.x(),pt1.y()),pt2,Qt::green);
+    if(ui->Rectangle_razor_rbt->isChecked())
+    {
+        ui->Canvas->regular_razor(pt1,pt2,ui->Sleep_box->isChecked());
+        ui->Canvas->Add_lines(pt1,QPointF(pt2.x(),pt1.y()),Qt::green);
+        ui->Canvas->Add_lines(pt1,QPointF(pt1.x(),pt2.y()),Qt::green);
+        ui->Canvas->Add_lines(QPointF(pt1.x(),pt2.y()),pt2,Qt::green);
+        ui->Canvas->Add_lines(QPointF(pt2.x(),pt1.y()),pt2,Qt::green);
+        return;
+    }
+    if(ui->Polyhedron_razor_rbt->isChecked())
+    {
+        if(!ui->Canvas->razor_Cyrus_Beck())
+        {
+            QMessageBox::warning(this,"Ошибка","Область отсекателя не является выпуклым многогранником");
+            ui->Canvas->delete_Polyhedrons();
+            ui->Canvas->Clear_canvas();
+            ui->Canvas->draw_all_save_obj();
+            return;
+        }
+        return;
+    }
+}
+
+void MainWindow::on_Rectangle_razor_rbt_clicked()
+{
+    ui->Canvas->delete_Polyhedrons();
 }

@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QMessageBox>
 #include <QLabel>
 #include <QString>
 #include <QMouseEvent>
@@ -39,17 +40,20 @@ private slots:
 
     void on_Razor_btn_clicked();
 
+    void on_Rectangle_razor_rbt_clicked();
+
 private:
     Ui::MainWindow *ui;
     bool print_btn_pressed;
     bool first_click;
     bool region_draw;
-    QPoint pt1;
-    QPoint pt2;
+    bool draw_line;
+    QPointF pt1;
+    QPointF pt2;
 
-    QPoint start_poli;
+    QPointF start_poli;
     void resizeEvent(QResizeEvent *event);
-    bool near(QPoint old, QPoint now);
+    bool near(QPointF old, QPointF now);
 };
 
 #endif // MAINWINDOW_H
