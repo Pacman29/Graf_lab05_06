@@ -450,17 +450,6 @@ void QCanvas::razor_CB(QPointF A, QPointF B, bool time_sleep)
         double Q = scalar(w,N);
         double P = scalar(D,N);
 
-//        double tmp1 = 0;
-//        double tmp2 = 0;
-
-//        if ( (tmp1 = fabs( fabs(N.x()) -  fabs(N_D.x())) )<0.5 &&  (tmp2 = fabs(fabs(N.y()) - fabs(N_D.y())) )<0.5)
-//            P = 0;
-
-//        if(Q < 0)
-//        {
-//            return;
-//        }
-
         if(P == 0)
         {
             if(Q<0)
