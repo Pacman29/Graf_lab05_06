@@ -486,7 +486,6 @@ void QCanvas::razor_CB(QPointF A, QPointF B, bool time_sleep)
                 }
 
         }
-
     }
 
     if (t0<=t1 && flag)

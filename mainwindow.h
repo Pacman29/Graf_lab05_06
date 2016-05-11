@@ -42,6 +42,16 @@ private slots:
 
     void on_Rectangle_razor_rbt_clicked();
 
+    void on_Polyhedron_razor_rbt_2_clicked(bool checked);
+
+    void on_Regiont_btn_2_clicked();
+
+    void on_Polyhedron_razor_rbt_clicked(bool checked);
+
+    void on_Clear_region_btn_clicked();
+
+    void on_Clear_region_btn_2_clicked();
+
 private:
     Ui::MainWindow *ui;
     bool print_btn_pressed;
