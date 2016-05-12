@@ -114,7 +114,7 @@ bool QCanvas::isClosed()
                 (false) :  (obj_Polyhedrons.value(0).S == obj_Polyhedrons.value(obj_Polyhedrons.size()-1).F);
 }
 
-bool QCanvas::isConvex()
+ssize_t QCanvas::isConvex()
 {
     ssize_t z = 0;
     for(size_t i = 0; i < obj_Polyhedrons.size() ; ++i)
@@ -124,7 +124,12 @@ bool QCanvas::isConvex()
         z+= (((A.F.x() - A.S.x())*(B.F.y() - B.S.y()) - (A.F.y() - A.S.y())*(B.F.x() - B.S.x())) < 0) ? (-1):(1);
     }
 
-    return fabs(z) == obj_Polyhedrons.size();
+    return (fabs(z) == obj_Polyhedrons.size()) ? (z):(0);
+}
+
+bool QCanvas::Obj_is_empty()
+{
+    return obj_lines.isEmpty();
 }
 
 void QCanvas::xor_with_line(QColor color,QColor background,bool time_sleep)
@@ -270,7 +275,7 @@ void QCanvas::fill_algorithm(QPointF start, QColor color,QColor border, bool tim
         }
         tmp_pix.setX(x_l);
         tmp_pix.setY(tmp_pix.y()-2);
-        while(tmp_pix.x() <= x_r)
+       while(tmp_pix.x() <= x_r)
         {
             bool flag = false;
             while(im.pixel(tmp_pix) != border.rgb() &&
@@ -335,6 +340,56 @@ bool QCanvas::razor_Cyrus_Beck(bool time_sleep)
         razor_CB(obj_lines.value(i).S,obj_lines.value(i).F,time_sleep);
 
     return true;
+}
+
+bool QCanvas::razor_Cazerlend_Hodzhmen(bool time_sleep)
+{
+
+    if(obj_lines.isEmpty())
+        return false;
+    ssize_t direction_value;
+    if(!(direction_value = isConvex()))
+        return false;
+    else
+        if(direction_value < 0)
+        {
+            size_t size = obj_Polyhedrons.size();
+            for(size_t i = 0; i< size/2. ; ++i)
+            {
+                line_t line_tmp_1 = obj_Polyhedrons.value(i);
+                line_t line_tmp_2 = obj_Polyhedrons.value(size-1-i);
+                std::swap(line_tmp_1.S,line_tmp_1.F);
+                std::swap(line_tmp_2.S,line_tmp_2.F);
+                obj_Polyhedrons.replace(i,line_tmp_2);
+                obj_Polyhedrons.replace(size-1-i,line_tmp_1);
+            }
+        }
+
+
+    QVector< QVector<QPointF> > arr_poli;
+
+    QPointF start = obj_lines.first().S;
+    QVector<QPointF> tmp;
+    tmp.push_back(start);
+    for(size_t i = 0; i < obj_lines.size(); ++i)
+        if(obj_lines.value(i).F != tmp.first())
+            tmp.push_back(obj_lines.value(i).F);
+        else
+        {
+            arr_poli.push_back(tmp);
+            tmp.clear();
+            if(i+1 != obj_lines.size())
+                tmp.push_back(obj_lines.value(i+1).S);
+            else
+                break;
+        }
+
+    for(size_t i = 0; i< arr_poli.size(); ++i)
+    {
+        QVector<QPointF> tmp = arr_poli.value(i);
+        razor_CH(obj_Polyhedrons,tmp,false);
+        print_poly(tmp);
+    }
 }
 
 bool QCanvas::enabled_pix(QColor color, QPointF p)
@@ -491,7 +546,62 @@ void QCanvas::razor_CB(QPointF A, QPointF B, bool time_sleep)
     if (t0<=t1 && flag)
         Add_lines(QPointF( A.x()+(B.x()-A.x())*t0 , A.y()+(B.y()-A.y())*t0),
               QPointF( A.x()+(B.x()-A.x())*t1 , A.y()+(B.y()-A.y())*t1),
-              Qt::blue);
+                  Qt::blue);
+}
+
+void QCanvas::razor_CH(QVector<QCanvas::line_t> razor, QVector<QPointF> &poly, bool time_sleep)
+{
+    for(size_t i = 0; i<razor.size(); ++i)
+    {
+        QVector<QPointF> tmp;
+        for(size_t j = 0; j< poly.size(); ++j)
+        {
+            QPointF S = poly.value(j);
+            QPointF F = poly.value((j+1) % poly.size());
+            size_t flag = Intersection(S,F,razor.value(i).S,razor.value(i).F);
+            while(flag)
+            switch (flag) {
+            case 1:
+            {
+                flag = 0;
+                continue;
+            }
+            case 2:
+            {
+                QPointF add = LinesCross(S,F,razor.value(i).S,razor.value(i).F);
+                if (add == F)
+                {
+                    flag = 3;
+                    continue;
+                }
+                tmp.push_back(add);
+                tmp.push_back(F);
+                flag = 0;
+                continue;
+            }
+            case 3:
+            {
+                tmp.push_back(F);
+                flag = 0;
+                continue;
+            }
+            case 4:
+            {
+                QPointF add = LinesCross(S,F,razor.value(i).S,razor.value(i).F);
+                if (add == F)
+                {
+                    flag = 3;
+                    continue;
+                }
+                tmp.push_back(add);
+                flag = 0;
+                continue;
+            }
+            }
+
+        }
+        poly.swap(tmp);
+    }
 }
 
 double QCanvas::length(QPointF A, QPointF B)
@@ -512,6 +622,57 @@ double QCanvas::scalar(QPoint A, QPoint B)
 {
     return A.x()*B.x() + A.y()*B.y();
 }
+
+double QCanvas::vector(QPointF st1, QPointF end1, QPointF st2, QPointF end2)
+{
+    return (end1.x() - st1.x()) * (end2.y() - st2.y()) - (end2.x() - st2.x()) * (end1.y() - st1.y());
+}
+
+size_t QCanvas::Intersection(QPointF poly_0, QPointF poly_1, QPointF A_razor, QPointF B_razor)
+{
+     qreal rez1 = vector(A_razor,poly_0,A_razor,B_razor);
+     qreal rez2 = vector(A_razor,poly_1,A_razor,B_razor);
+
+     if(rez1 > 0)
+     {
+         if(rez2 > 0)
+             return 1; // обе вершины вне
+         else
+             return 2; // пересечение из вне -> внутрь
+     }
+     else
+     {
+         if(rez2 > 0)
+             return 4; // пересечение из внутри -> наружу
+         else
+             return 3; //обе вершины внутри
+     }
+
+}
+
+QPointF QCanvas::LinesCross(QPointF poly_0, QPointF poly_1, QPointF A_razor, QPointF B_razor)
+{
+   qreal zn = (B_razor.y() - A_razor.y()) * (poly_1.x() - poly_0.x()) - (B_razor.x() - A_razor.x()) * (poly_1.y() - poly_0.y());
+   qreal ch1 = (B_razor.x() - A_razor.x()) * (poly_0.y() - A_razor.y()) - (B_razor.y() - A_razor.y()) * (poly_0.x() - A_razor.x());
+   qreal ch2 = (poly_1.x() - poly_0.x()) * (poly_0.y() - A_razor.y()) - (poly_1.y() - poly_0.y()) * (poly_0.x() - A_razor.x());
+
+   if(!zn && (!ch1 || !ch2))
+       return poly_1;
+
+   ch1/=zn;
+
+   return QPointF(poly_0.x() + ch1 * (poly_1.x() - poly_0.x()) , poly_0.y() + ch1 * (poly_1.y() - poly_0.y()));
+
+}
+
+void QCanvas::print_poly(QVector<QPointF>& poly)
+{
+    for(size_t i = 0; i<poly.size(); ++i)
+    {
+        Add_lines(poly.value(i),poly.value((i+1)%poly.size()),Qt::blue);
+    }
+}
+
 bool QCanvas::mouse_button_press()
 {
     return pressed;

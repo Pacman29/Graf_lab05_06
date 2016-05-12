@@ -43,12 +43,14 @@ public:
     void delete_Polyhedrons();
 
     bool isClosed();
-    bool isConvex();
+    ssize_t isConvex();
+    bool Obj_is_empty();
 
     void xor_with_line(QColor color, QColor background, bool time_sleep = false);
     void fill_algorithm(QPointF start, QColor color, QColor border, bool time_sleep = false);
     void regular_razor(QPointF pt1, QPointF pt2,bool time_sleep = false );
     bool razor_Cyrus_Beck(bool time_sleep = false);
+    bool razor_Cazerlend_Hodzhmen(bool time_sleep = false);
     bool enabled_pix(QColor color, QPointF p);
 
     bool mouse_button_press();
@@ -63,9 +65,15 @@ private:
     int bit_code(QPointF pt1, QPointF pt2, QPointF search);
     void razor(QPointF A, QPointF B, QPointF pt1, QPointF pt2,bool time_sleep);
     void razor_CB(QPointF A, QPointF B, bool time_sleep);
+    void razor_CH(QVector<line_t> razor, QVector<QPointF>& poly, bool time_sleep);
     double length(QPointF A, QPointF B);
     double func(QPointF p1, QPointF p2, size_t y);
     double scalar(QPoint A, QPoint B);
+    double vector(QPointF st1, QPointF end1, QPointF st2, QPointF end2);
+
+    size_t Intersection(QPointF poly_0, QPointF poly_1, QPointF A_razor, QPointF B_razor);
+    QPointF LinesCross(QPointF poly_0, QPointF poly_1, QPointF A_razor, QPointF B_razor);
+    void print_poly(QVector<QPointF> &poly);
 
 signals:
     void mouse_pressevent();

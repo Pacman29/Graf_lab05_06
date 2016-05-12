@@ -119,6 +119,7 @@ void MainWindow::Mouse_click_pos()
                 first_click = true;
                 start_poli = ui->Canvas->coord_click;
                 ui->Canvas->coord_click_old = ui->Canvas->coord_click;
+
             }
             else
             {
@@ -137,6 +138,7 @@ void MainWindow::Mouse_click_pos()
                     ui->tab->setEnabled(true);
                     region_draw = false;
                     ui->tabWidget->setEnabled(!region_draw);
+
 
                 }
                 else
@@ -169,6 +171,7 @@ void MainWindow::Mouse_click_pos()
                 first_click = true;
                 start_poli = ui->Canvas->coord_click;
                 ui->Canvas->coord_click_old = ui->Canvas->coord_click;
+                ui->tabWidget->setEnabled(!first_click);
             }
             else
             {
@@ -180,6 +183,7 @@ void MainWindow::Mouse_click_pos()
                     ui->Canvas->draw_all_save_polihendron();
                     ui->Canvas->Add_lines(ui->Canvas->coord_click_old,start_poli,Qt::black);
                     ui->Canvas->save_obj_line(ui->Canvas->coord_click_old,start_poli);
+                    ui->tabWidget->setEnabled(!first_click);
                 }
                 else
                 {
@@ -256,6 +260,7 @@ void MainWindow::on_Clear_btn_clicked()
     first_click = false;
     ui->Canvas->Clear_canvas();
     ui->Canvas->delete_all_save_obj();
+    ui->Canvas->delete_Polyhedrons();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -335,6 +340,7 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
 {
     ui->Draw_Lines->setEnabled(true);
     ui->Draw_Pixel->setEnabled(true);
+    ui->Sleep_box->setEnabled(true);
     switch (index) {
     case 0:
     {
@@ -370,6 +376,7 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
         ui->Draw_Lines->setEnabled(false);
         ui->Draw_Pixel->setEnabled(false);
         ui->Draw_Polygon->setChecked(true);
+        ui->Sleep_box->setEnabled(false);
     }
     default:
         break;
@@ -433,4 +440,20 @@ void MainWindow::on_Clear_region_btn_clicked()
 void MainWindow::on_Clear_region_btn_2_clicked()
 {
     emit ui->Clear_region_btn->click();
+}
+
+void MainWindow::on_Razor_btn_2_clicked()
+{
+    if(!ui->Canvas->isConvex())
+    {
+        QMessageBox::warning(this,"Ошибка","Область отсекателя не является выпуклым многогранником");
+        ui->Canvas->delete_Polyhedrons();
+        ui->Canvas->Clear_canvas();
+        ui->Canvas->draw_all_save_obj();
+        return;
+    }
+    if(!ui->Canvas->razor_Cazerlend_Hodzhmen())
+    {
+        QMessageBox::warning(this,"Ошибка","Нарисуйте многогранник");
+    }
 }

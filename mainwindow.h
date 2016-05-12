@@ -52,6 +52,8 @@ private slots:
 
     void on_Clear_region_btn_2_clicked();
 
+    void on_Razor_btn_2_clicked();
+
 private:
     Ui::MainWindow *ui;
     bool print_btn_pressed;
