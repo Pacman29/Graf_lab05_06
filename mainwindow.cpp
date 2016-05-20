@@ -341,6 +341,9 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
     ui->Draw_Lines->setEnabled(true);
     ui->Draw_Pixel->setEnabled(true);
     ui->Sleep_box->setEnabled(true);
+    ui->Canvas->Clear_canvas();
+    ui->Canvas->delete_all_save_obj();
+    ui->Canvas->delete_Polyhedrons();
     switch (index) {
     case 0:
     {
